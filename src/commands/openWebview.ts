@@ -129,7 +129,7 @@ class TransView {
                         json: true,
                     }).then((body: any) => {
                         if (body.resultCode && body.resultCode.message === 'success') {
-                            vscode.window.showInformationMessage(`提交${data.key}成功`);
+                            vscode.window.showInformationMessage(`美杜莎${configObj.intlProjectName}提交${data.key}成功`);
                             utils.updateLocals({
                                 cn: [
                                     {

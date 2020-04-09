@@ -1,6 +1,7 @@
 import utils from "../utils";
 import * as vscode from 'vscode';
 import NodeConstants from "../constants/node";
+import config from "../config";
 const babelCore = require('@babel/core');
 var readfiles = require('node-readfiles');
 var generate = require('@babel/generator');
@@ -80,11 +81,13 @@ export default class CheckFile {
         utils.appendOutputLine(text + ' ' + filePath);
     }
     getNodeValue (node: any) {
-        if (node.type === 'TemplateLiteral') {
-            return generate.default(node).code.slice(1, -1);
+        var value = '';
+        if (node.type === 'TemplateElement') {
+            value = node.value.raw;
         } else {
-            return node.value
+            value = node.value
         }
+        return value.trim()
     }
     checkNode(nodePath: any, errors?: any) {
         errors = errors || [];
@@ -120,9 +123,9 @@ export default class CheckFile {
                 const locNode = intlNode.get('loc').node;
                 if (
                     !checkResult.cn
-                    || !checkResult.en
-                    || !checkResult.tw
-                    || !checkResult.isSame
+                    // || !checkResult.en
+                    // || !checkResult.tw
+                    // || !checkResult.isSame
                 ) {
                     if (
                         intlNode.node.start
@@ -146,7 +149,8 @@ export default class CheckFile {
                                 textLocNode: textNode && textNode.loc,
                             },
                             intlKey,
-                            intlText: nodeValue,
+                            intlText: generate.default(intlNode.node.arguments[0]).code.slice(1, -1),
+                            // 这里只考虑.d的第一个参数是字符串, 如果是表达式, 不考虑这种情况, 需要用户特殊处理 
                             trans: {
                                 cn: checkResult.cn,
                                 en: checkResult.en,
@@ -210,7 +214,7 @@ export default class CheckFile {
                             StringLiteral: (nodePath: any) => {
                                 this.checkNode(nodePath, errors);
                             },
-                            TemplateLiteral: (nodePath: any) => {
+                            TemplateElement: (nodePath: any) => {
                                 this.checkNode(nodePath, errors);
                             },
                         }
@@ -226,6 +230,7 @@ export default class CheckFile {
             }, (err: any) => {
                 if (err) {
                     console.log(err);
+                    vscode.window.showWarningMessage(`${config.name}解析失败` + err.stack);
                     return;
                 }
                 const obj: any = {};
@@ -257,14 +262,15 @@ export default class CheckFile {
                 const filename = files[i];
                 const ext = path.extname(filename);
                 if (this.consoleIndex > 50) {
-                    return;
+                    break;
                 }
                 if (/\.(js|tsx|jsx|ts)$/.test(ext) && !this.excludeDir.test(filename)) {
                     const errors = await this.checkFile(path.join(srcDir, filename));
                     allerrors = allerrors.concat(errors);
+                    utils.appendOutputLine(filename + '分析完毕');
+                    utils.showOutput();
                 }
-                utils.appendOutputLine(filename + '分析完毕');
-                utils.showOutput();
+               
             }
             return allerrors;
         })

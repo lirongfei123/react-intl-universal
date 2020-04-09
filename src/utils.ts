@@ -9,7 +9,6 @@ class Utils {
     lastActiveTextEditor: any = null;
     outputChannel = vscode.window.createOutputChannel('dataworks-intl');
     appendOutputLine(str: string) {
-        console.log('eqwqw');
         this.outputChannel.appendLine(str);
     }
     clearOutput() {

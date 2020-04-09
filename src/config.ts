@@ -4,6 +4,7 @@ import utils from './utils';
 import * as fs from 'fs';
 import defaultConfig from './defaultConfig';
 const path = require('path');
+const http = require('request-promise');
 class Config {
     publisher = 'rongpingli';
     name = 'dataworks-intl';
@@ -14,8 +15,9 @@ class Config {
         const configFile = await utils.getCurrentFileDir().then((src: any) => {
             // 递归
             const findConfigFile = (fileDir: any): any => {
-                if (path.isAbsolute(fileDir)) {
-                    fileDir = path.resolve(__dirname, fileDir);
+                if (!path.isAbsolute(fileDir)) {
+                    return null;
+                    // fileDir = path.resolve(__dirname, fileDir);
                 }
                 if (fileDir == '/') {
                     return null;
@@ -33,13 +35,15 @@ class Config {
             return findConfigFile(src);
         });
         var configFileObj: any = {};
-        console.log(configFile);
         if (configFile) {
             configFileObj = require(configFile);
             delete require.cache[configFile];
             this.lastConfig = {
                 ...defaultConfig,
-                ...configFileObj
+                ...configFileObj({
+                    http,
+                    vscode
+                })
             };
             return this.lastConfig;
         } else {

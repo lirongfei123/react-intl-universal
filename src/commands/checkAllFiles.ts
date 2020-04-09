@@ -3,6 +3,7 @@ import Commands from '../constants/commands';
 import * as fs from 'fs';
 import * as path from 'path';
 import utils from "../utils";
+import Task from '../services/Task';
 import config from "../config";
 import CheckFile from '../services/checkFiles'
 import NodeConstants from "../constants/node";
@@ -20,37 +21,39 @@ class CheckFiles {
                     prompt: '请输入要check的文件夹路径',
                     value: currentDir,
                     valueSelection: [currentDir.lastIndexOf('/'), currentDir.length]
-                }).then((dir: any) => {
-                    utils.getLang().then(data => {
-                        const checkFileService = new CheckFile({
-                            langMap: data
-                        });
-                        const consoleErrors = (ferrors: any) => {
-                            utils.clearOutput();
-                            if (ferrors.length > 0) {
-                                ferrors.forEach((item: any) => {
-                                    const filePath = item.filePath;
-                                    if (item.type === NodeConstants.HAS_KEY) {
-                                        const consolePath = `${filePath}:${item.data.startNode.line}:${item.data.startNode.column}`;
-                                        checkFileService.consolePath(consolePath, item.trans);
-                                    } else if (item.type === NodeConstants.NO_KEY) {
-                                        checkFileService.consolePath(`${filePath}:${item.data.startNode.line}:${item.data.startNode.column}`, {
-                                            cn: false,
-                                        });
-                                    }
-                                });
-                            } else {
-                                utils.appendOutputLine('此文件正常, 没有国际化问题');
-                            }
-                            utils.showOutput();
-                        }
-                        if (fs.statSync(dir).isFile()) {
-                            checkFileService.checkFile(dir).then(consoleErrors)
-                        } else {
-                            checkFileService.getFiles(dir).then(consoleErrors)
-                        }
-                    }, () => {
+                }).then(async (dir: any) => {
+                    const task = new Task();
+                    const langData = await task.getLang();
+                    const checkFileService = new CheckFile({
+                        langMap: langData
                     });
+                    const consoleErrors = (ferrors: any) => {
+                        if (task.curConfig.errorHandle) {
+                            task.curConfig.errorHandle(ferrors);
+                        }
+                        utils.clearOutput();
+                        if (ferrors.length > 0) {
+                            ferrors.forEach((item: any) => {
+                                const filePath = item.filePath;
+                                if (item.type === NodeConstants.HAS_KEY) {
+                                    const consolePath = `${filePath}:${item.data.startNode.line}:${item.data.startNode.column}`;
+                                    checkFileService.consolePath(consolePath, item.trans);
+                                } else if (item.type === NodeConstants.NO_KEY) {
+                                    checkFileService.consolePath(`${filePath}:${item.data.startNode.line}:${item.data.startNode.column}`, {
+                                        cn: false,
+                                    });
+                                }
+                            });
+                        } else {
+                            utils.appendOutputLine('此文件正常, 没有国际化问题');
+                        }
+                        utils.showOutput();
+                    }
+                    if (fs.statSync(dir).isFile()) {
+                        checkFileService.checkFile(dir).then(consoleErrors)
+                    } else {
+                        checkFileService.getFiles(dir).then(consoleErrors)
+                    }
                 });
             });
             

@@ -43,7 +43,6 @@ class CodeHover implements HoverProvider {
             };
             return this.checkHasCn(info.intlText).then(resultKey => {
                 if (resultKey) {
-                    
                     return this.getHoverValue(`
 - [已经存在Key, 自动填充](${this.getCommandUrl(Commands.AUTO_FILL_TEXT, {
     range: range,

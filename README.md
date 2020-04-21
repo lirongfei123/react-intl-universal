@@ -59,7 +59,9 @@ module.exports = ({vscode, utils}) => {
 ## 功能
 ### 功能一, 自动查找已有Key, 并自动补全
 #### 替换全部
+
 ![](https://img.alicdn.com/tfs/TB1gpdtCVP7gK0jSZFjXXc5aXXa-666-298.gif)
+
 #### 只替换key
 ![](https://img.alicdn.com/tfs/TB1z3pxC7T2gK0jSZPcXXcKkpXa-666-298.gif)
 
@@ -67,8 +69,10 @@ module.exports = ({vscode, utils}) => {
 ![](https://img.alicdn.com/tfs/TB1wLpyC4D1gK0jSZFyXXciOVXa-926-236.gif)
 
 ### 功能二, 没有翻译的自动提交美杜莎翻译(可定制翻译逻辑), 并直接替换, 支持自动生成key
+
 ![](https://img.alicdn.com/tfs/TB1wLpyC4D1gK0jSZFyXXciOVXa-926-236.gif)
 ### 支持查看所有文件, 标识出那些文件有美杜莎错误, 并自动标红, 自动跳转
+
 ![](https://img.alicdn.com/tfs/TB1pC_3C1L2gK0jSZFmXXc7iXXa-1348-820.gif)
 
 ## 配置

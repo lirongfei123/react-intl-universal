@@ -4,30 +4,37 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import utils from "../utils";
-import config from "../config";
 import { debounce } from 'lodash'
 import CheckFile from '../services/checkFiles';
 import NodeConstants from "../constants/node";
+import Task from "../services/Task";
 var CRC32 = require('crc-32'); 
 class CodeHover implements HoverProvider {
+    task: any = null;
+    configObj: any = {};
+    constructor() {
+    }
     checkHasCn(cnText: string) {
-        return utils.getLang().then((data: any) => {
-            for (var i in data.cn) {
-                if (data.cn.hasOwnProperty(i)) {
-                    const text = data.cn[i];
-                    if (text === cnText) {
-                        return i;
-                    }
+        const langData = this.task.getLang();
+        for (var i in langData[this.configObj.defaultLang]) {
+            if (langData[this.configObj.defaultLang].hasOwnProperty(i)) {
+                const text = langData[this.configObj.defaultLang][i];
+                if (text === cnText) {
+                    return i;
                 }
             }
-            return false;
-        });
+        }
+        return false;
     }
     getCommandUrl(commandKey: any, params: any) {
         return `command:${commandKey}?${encodeURIComponent(JSON.stringify(params))}`
     }
-    getHoverValue (text: any) {
-        const markdown = new vscode.MarkdownString(text);
+    getHoverValue (commands: any) {
+        const textArr: any = [];
+        commands.forEach((command: any) => {
+            textArr.push(`- [${command[0]}](${this.getCommandUrl(command[1], command[2])})`);
+        });
+        const markdown = new vscode.MarkdownString(textArr.join('\n'));
         markdown.isTrusted = true;
         return new vscode.Hover(markdown)
     }
@@ -41,29 +48,40 @@ class CodeHover implements HoverProvider {
                 endLine: endNode.line - 1,
                 endColumn: endNode.column
             };
-            return this.checkHasCn(info.intlText).then(resultKey => {
-                if (resultKey) {
-                    return this.getHoverValue(`
-- [已经存在Key, 自动填充](${this.getCommandUrl(Commands.AUTO_FILL_TEXT, {
-    range: range,
-    text: `intl.get('${resultKey}').d('${info.intlText}')`
-})})
-- [已经存在Key, 自动填充, 加大括号](${this.getCommandUrl(Commands.AUTO_FILL_TEXT, {
-    range: range,
-    text: `{intl.get('${resultKey}').d('${info.intlText}')}`
-})})
-                    `);
-                } else {
-                    return this.getHoverValue(`
-- [添加到美杜莎](${this.getCommandUrl(Commands.OPEN_WEBVIEW, {
-    range: range,
-    text: info.intlText,
-    key: CRC32.str(info.intlText),
-    type: 'replaceWhole'
-})})
-                    `);
-                }
-            });
+            const resultKey = this.checkHasCn(info.intlText)
+            if (resultKey) {
+                return this.getHoverValue([
+                    [
+                        '已经存在Key, 自动填充',
+                        Commands.AUTO_FILL_TEXT,
+                        {
+                            range: range,
+                            text: `intl.get('${resultKey}').d('${info.intlText}')`
+                        }
+                    ],
+                    [
+                        '已经存在Key, 自动填充, 加大括号',
+                        Commands.AUTO_FILL_TEXT,
+                        {
+                            range: range,
+                            text: `{intl.get('${resultKey}').d('${info.intlText}')}`
+                        }
+                    ]
+                ]);
+            } else {
+                return this.getHoverValue([
+                    [
+                        '添加到美杜莎',
+                        Commands.OPEN_WEBVIEW,
+                        {
+                            range: range,
+                            text: info.intlText,
+                            key: CRC32.str(info.intlText),
+                            type: 'replaceWhole'
+                        }
+                    ]
+                ]);
+            }
         } else if (info.type === NodeConstants.HAS_KEY) {
             const trans = info.trans;
             const keyLocNode = info.data.keyLocNode;
@@ -75,83 +93,84 @@ class CodeHover implements HoverProvider {
                 endLine: endNode.line - 1,
                 endColumn: endNode.column
             }
-            if (!trans.cn && !trans.en && !trans.cn) {
-                return this.checkHasCn(info.intlText).then(resultKey => {
-                    if (resultKey) {
-                        return this.getHoverValue(`
-- [已经存在Key, 自动填充](${this.getCommandUrl(Commands.AUTO_FILL_TEXT, {
-    range: range,
-    text: `'${resultKey}'`
-})})
-                    `);
+            if (this.task.hasFalse(trans)) {
+                if (trans[this.configObj.defaultLang]) {
+                    if (trans[NodeConstants.KEY_SAME] === false) {
+                        const textLocNode = info.data.textLocNode;
+                        if (textLocNode) {
+                            const startNode = textLocNode.start;
+                            const endNode = textLocNode.end;
+                            const range = {
+                                startLine: startNode.line - 1,
+                                startColumn: startNode.column,
+                                endLine: endNode.line - 1,
+                                endColumn: endNode.column
+                            }
+                            const langData = this.task.getLang();
+                            return this.getHoverValue([
+                                [
+                                    '不一致, 自动更新',
+                                    Commands.AUTO_FILL_TEXT,
+                                    {
+                                        range: range,
+                                        text: `'${langData[this.configObj.defaultLang][info.intlKey]}'`
+                                    }
+                                ]
+                            ]);
+                        }
                     } else {
-                        return this.getHoverValue(`
-- [不存在Key, 添加到美杜莎](${this.getCommandUrl(Commands.OPEN_WEBVIEW, {
-    range: range,
-    text: info.intlText,
-    key: info.intlKey,
-    type: 'replaceKey'
-})})
-                        `);
+                        return this.getHoverValue([
+                            [
+                                '已经添加到美杜莎, 但是缺少英文, 或者繁体',
+                                Commands.OPEN_WEBVIEW,
+                                {
+                                    range: range,
+                                    text: info.intlText,
+                                    key: CRC32.str(info.intlText),
+                                    type: 'replaceWhole'
+                                }
+                            ]
+                        ]);
                     }
-                });
-            } else if (!trans.isSame) {
-                const textLocNode = info.data.textLocNode;
-                if (textLocNode) {
-                    const startNode = textLocNode.start;
-                    const endNode = textLocNode.end;
-                    const range = {
-                        startLine: startNode.line - 1,
-                        startColumn: startNode.column,
-                        endLine: endNode.line - 1,
-                        endColumn: endNode.column
-                    }
-                    return utils.getLang().then((langData: any) => {
-                        return this.getHoverValue(`
-- [不一致, 自动更新](${this.getCommandUrl(Commands.AUTO_FILL_TEXT, {
-        range: range,
-        text: `'${langData.cn[info.intlKey]}'`
-})})
-                        `);
-                    });
                 } else {
-                    return this.getHoverValue(`
-不一致, 无法自动填充, 请手动填充
-                    `);
+                    const resultKey = this.checkHasCn(info.intlText);
+                    if (resultKey) {
+                        return this.getHoverValue([
+                            [
+                                '已经存在Key, 自动填充',
+                                Commands.AUTO_FILL_TEXT,
+                                {
+                                    range: range,
+                                    text: `'${resultKey}'`
+                                }
+                            ]
+                        ]);
+                    } else {
+                        return this.getHoverValue([
+                            [
+                                '不存在Key, 添加到美杜莎',
+                                Commands.OPEN_WEBVIEW,
+                                {
+                                    range: range,
+                                    text: info.intlText,
+                                    key: info.intlKey,
+                                    type: 'replaceKey'
+                                }
+                            ]
+                        ]);
+                    }
                 }
-                
-            } else {
-                return this.getHoverValue(`
-- [已经添加到美杜莎, 但是缺少英文, 或者繁体](${this.getCommandUrl(Commands.OPEN_WEBVIEW, {
-    range: range,
-    text: info.intlText,
-    key: CRC32.str(info.intlText),
-    type: 'replaceWhole'
-})})
-                `);
             }
         }
     }
     provideHover(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken): vscode.ProviderResult<vscode.Hover> {
         const info = utils.globalFileInfo[document.fileName];
         if (info) {
+            this.task = new Task();
+            this.configObj = this.task.getConfig();
             const infoAtPositon = Object.values(info).find((item: any) => {
                 const offset = document.offsetAt(position);
                 return offset >= item.data.start && offset <= item.data.end;
-                // const startNode = item.data.startNode;
-                // const endNode = item.data.endNode;
-                // if (startNode.line != endNode.line) {
-                //     return (
-                //         startNode.line <= (position.line + 1)
-                //         && endNode.line >= (position.line + 1)
-                //     )
-                // } else {
-                //     return (
-                //         startNode.line == (position.line + 1)
-                //         && startNode.column <= position.character
-                //         && endNode.column >= position.character
-                //     )
-                // }
             });
             if (infoAtPositon) {
                 return this.getHoverMarkDown(infoAtPositon);

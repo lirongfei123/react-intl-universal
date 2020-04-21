@@ -72,7 +72,7 @@
           //   document.getElementById('textInput').value = data.text;
           // }
           vscode.postMessage({
-            type: 'dataworks-intl-event.REQUEST_READY_INITDATA',
+            type: 'react-intl-universal-event.REQUEST_READY_INITDATA',
             data: {
               text: this.form.intlText
             }
@@ -80,14 +80,14 @@
           window.addEventListener('message', ({ data: eventData }) => {
             const { data, type } = eventData
             switch (type) {
-              case 'dataworks-intl-event.ADD_TO_MEIDUSHA': {
+              case 'react-intl-universal-event.ADD_TO_MEIDUSHA': {
                 this.form.intlKey = data.key;
                 this.form.intlText = data.text;
                 this.range = data.range;
                 this.type = data.type;
                 break;
               }
-              case 'dataworks-intl-event.AUTO_TRANS_KEY': {
+              case 'react-intl-universal-event.AUTO_TRANS_KEY': {
                 this.form.intlKey = data;
                 break;
               }
@@ -103,7 +103,7 @@
           },
           _updateEditor(hasKuo) {
             vscode.postMessage({
-              type: 'dataworks-intl-event.UPDATE_EDITOR_TEXT',
+              type: 'react-intl-universal-event.UPDATE_EDITOR_TEXT',
               data: {
                 text: this.form.intlText,
                 key: this.form.intlKey,
@@ -127,7 +127,7 @@
           },
           _submitKey(isUpdate, hasKuo) {
             vscode.postMessage({
-              type: 'dataworks-intl-event.SUBMIT_TO_MEIDUSHA',
+              type: 'react-intl-universal-event.SUBMIT_TO_MEIDUSHA',
               data: {
                 text: this.form.intlText,
                 key: this.form.intlKey,
@@ -140,7 +140,7 @@
           },
           autoCreateKey() {
             vscode.postMessage({
-              type: 'dataworks-intl-event.AUTO_CREATE_KEY',
+              type: 'react-intl-universal-event.AUTO_CREATE_KEY',
               data: {
                 text: this.form.intlText
               }

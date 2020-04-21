@@ -1,7 +1,7 @@
 {
-  "name": "dataworks-intl",
+  "name": "react-intl-universal",
   "publisher": "rongpingli",
-  "displayName": "dataworks-intl",
+  "displayName": "react-intl-universal",
   "description": "",
   "version": "0.0.1",
   "engines": {
@@ -12,8 +12,8 @@
   ],
   "activationEvents": [
     "onCommand:extension.helloWorld",
-    "onCommand:dataworks-intl.OPEN_WEBVIEW",
-    "onCommand:dataworks-intl.CHECK_ALL_FILES",
+    "onCommand:react-intl-universal.OPEN_WEBVIEW",
+    "onCommand:react-intl-universal.CHECK_ALL_FILES",
     "onLanguage:javascript",
     "onLanguage:typescript",
     "onLanguage:typescriptreact"
@@ -22,25 +22,25 @@
   "contributes": {
     "commands": [
       {
-        "command": "dataworks-intl.CHECK_ALL_FILES",
+        "command": "react-intl-universal.CHECK_ALL_FILES",
         "title": "Check: 文件国际化"
       }
     ],
     "configuration": {
       "type": "object",
-      "title": "dataworks-intl",
+      "title": "react-intl-universal",
       "properties": {
-        "dataworks-intl.globalConfigType": {
+        "react-intl-universal.globalConfigType": {
           "type": "string",
           "default": "npm",
           "description": "配置类型, 是文件路径, 还是npm包, 值有:npm 或者 file"
         },
-        "dataworks-intl.globalConfig": {
+        "react-intl-universal.globalConfig": {
           "type": "string",
           "default": "",
           "description": "配置文件地址, JS文件, 可以使用nodejs API"
         },
-        "dataworks-intl.localConfigFileName": {
+        "react-intl-universal.localConfigFileName": {
           "type": "string",
           "default": "intl.config.js",
           "description": "具体配置的配置文件名, 插件会查找当前文件上层文件夹中的这个文件, 一直向上插件, 直到找到为止"

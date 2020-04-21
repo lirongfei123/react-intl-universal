@@ -2,12 +2,11 @@ import { ExtensionContext, commands, window, ViewColumn } from "vscode";
 import * as vscode from "vscode";
 import * as fs from 'fs';
 import * as path from 'path';
-import Config from '../config';
 var CRC32 = require('crc-32'); 
 import EventConstants from "../constants/events";
 import utils from "../utils";
 import CommandConstants from "../constants/commands";
-import config from "../config";
+import Task from "../services/Task";
 const http = require('request-promise');
 class TransView {
     ctx: any;
@@ -23,7 +22,6 @@ class TransView {
         }));
     }
     createPanel(params: any) {
-        console.log(params);
         if (!this.panel) {
             this.panel = window.createWebviewPanel(
                 'transView',
@@ -36,7 +34,7 @@ class TransView {
             );
             const {webview} = this.panel;
             webview.html = fs.readFileSync(
-                path.join(Config.extension.extensionPath, 'src/html/trans.html'),
+                path.join(utils.extension.extensionPath, 'src/html/trans.html'),
                 'utf-8'
             );
             this.panel.onDidChangeViewState((webview: any) => {
@@ -76,6 +74,8 @@ class TransView {
         });
     }
     onMessage({type, data}: any) {
+        const task = new Task();
+        const configObj = task.getConfig();
         switch(type) {
             case EventConstants.REQUEST_READY_INITDATA: {
                 this.postmessage({
@@ -86,14 +86,13 @@ class TransView {
             }
             case EventConstants.AUTO_CREATE_KEY: {
                 var hashKey = CRC32.str(data.text);
-                return utils.getLang().then((data: any) => {
-                    if (data.cn[hashKey]) {
-                        hashKey = CRC32.str(data.text + '' + new Date().getTime().toString());
-                    }
-                    this.postmessage({
-                        type: EventConstants.AUTO_TRANS_KEY,
-                        data: hashKey
-                    });
+                const langData = task.getLang();
+                if (langData[configObj.defaultLang][hashKey]) {
+                    hashKey = CRC32.str(data.text + '' + new Date().getTime().toString());
+                }
+                this.postmessage({
+                    type: EventConstants.AUTO_TRANS_KEY,
+                    data: hashKey
                 });
                 break;
             }
@@ -102,49 +101,16 @@ class TransView {
                 break;
             }
             case EventConstants.SUBMIT_TO_MEIDUSHA: {
-                config.getConfig().then((configObj: any) => {
-                    if (!configObj.intlProjectName) {
-                        vscode.window.showErrorMessage('需要提供美杜莎项目名称: intlProjectName');
-                        return;
+                const callback = () => {
+                    if (data.isUpdate) {
+                        this.webviewReplace(data);
                     }
-                    http({
-                        method: 'POST',
-                        uri: 'http://mcms.alibaba-inc.com/api/batchInsertOrUpdate',
-                        form: {
-                            userId: "960582",
-                            fromAppName: 'onebox',
-                            writeDTOs: JSON.stringify(
-                                [
-                                    {
-                                        "appName": configObj.intlProjectName,
-                                        "key": data.key,
-                                        "tagDTOList":[{"tagName":"tnpm"}],
-                                        "i18n":{
-                                            "zh_CN": data.text
-                                        }
-                                    }
-                                ]
-                            )
-                        },
-                        json: true,
-                    }).then((body: any) => {
-                        if (body.resultCode && body.resultCode.message === 'success') {
-                            vscode.window.showInformationMessage(`美杜莎${configObj.intlProjectName}提交${data.key}成功`);
-                            utils.updateLocals({
-                                cn: [
-                                    {
-                                        key: data.key,
-                                        text: data.text
-                                    }
-                                ]
-                            }).then(() => {
-                                if (data.isUpdate) {
-                                    this.webviewReplace(data);
-                                }
-                            });
-                        }
-                    })
-                });
+                };
+                if (configObj.isAli) {
+                    utils.addToMeidusha(task, data.key, data.text, callback);
+                } else {
+                    configObj.uploadLang && configObj.uploadLang(configObj, data.key, data.text, callback);
+                }
                 
                 break;
             }

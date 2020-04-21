@@ -1,80 +1,39 @@
 import utils from "../utils";
 import * as vscode from 'vscode';
 import NodeConstants from "../constants/node";
-import config from "../config";
 const babelCore = require('@babel/core');
 var readfiles = require('node-readfiles');
 var generate = require('@babel/generator');
 const path = require('path');
 export default class CheckFile {
-    dNameReg: RegExp = /^d|defaultMessage$/;
-    getNameReg: RegExp = /^get|getHtml$/;
-    langMap: any = {};
     consoleIndex: number = 0;
-    excludeDir: RegExp = /locales/;
+    task: any = null;
+    configObj: any = {};
     constructor({
-        dNameReg,
-        getNameReg,
-        langMap,
-        excludeDir
+        task,
     }: any) {
-        if (dNameReg) {
-            this.dNameReg = dNameReg;
-        }
-        if (getNameReg) {
-            this.getNameReg = getNameReg;
-        }
-        if (excludeDir) {
-            this.excludeDir = excludeDir;
-        }
-        if (langMap) {
-            this.langMap = langMap;
+        if (task) {
+            this.task = task;
+            this.configObj = this.task.getConfig();
+        } else {
+            throw(new Error('必须传入task'));
         }
     }
-    getStatusText({cn, en, tw, isSame}: any) {
-        if (cn && en && tw && isSame) return null;
-        var text = '缺少';
-        if (!en) {
-            text += ' 英文'
-        }
-        if (!cn) {
-            text += ' 中文'
-        }
-        if (!tw) {
-            text += ' 繁体'
-        }
-        if (!isSame) {
-            text += ' 不一致'
+    getStatusText(result: any) {
+        const configObj = this.task.getConfig();
+        var text = configObj.prefixStatusText;
+        Object.keys(configObj.langKey).forEach((item: any) => {
+            if (!result[item] && configObj.langKey[item]) {
+                text += ' ' + configObj.langKey[item];
+            }
+        });
+        if (!result[NodeConstants.KEY_SAME]) {
+            text += ' ' + configObj.notSameText;
         }
         return text;
     }
-    checkKey(key: string, nodeValue: string) {
-        var cn = false;
-        var en = false;
-        var tw = false;
-        var isSame = true;
-        if (this.langMap.cn[key]) {
-            cn = true;
-            if (this.langMap.cn[key].indexOf('{') == -1 && this.langMap.cn[key] != nodeValue) {
-                isSame = false;
-            }
-        }
-        if (this.langMap.en[key]) {
-            en = true;
-        }
-        if (this.langMap.tw[key]) {
-            tw = true;
-        }
-        return {
-            cn,
-            en,
-            tw,
-            isSame
-        }
-    }
-    consolePath(filePath: string, {cn, en, tw, isSame}: any) {
-        if (cn && en && tw && isSame) return;
-        const text = this.getStatusText({cn, en, tw, isSame});
+    consolePath(filePath: string, result: any) {
+        const text = this.getStatusText(result);
         if (text != null) {
             this.consoleIndex++;
         }
@@ -90,6 +49,7 @@ export default class CheckFile {
         return value.trim()
     }
     checkNode(nodePath: any, errors?: any) {
+        const configObj = this.task.getConfig();
         errors = errors || [];
         const nodeValue = this.getNodeValue(nodePath.node);
         if (
@@ -101,12 +61,12 @@ export default class CheckFile {
                 if (
                     node.type ===  "CallExpression"
                     && node.callee.type === "MemberExpression"
-                    && this.dNameReg.test(node.callee.property.name)
+                    && configObj.defaultFuncNameReg.test(node.callee.property.name)
                 ) {
                     const objNode = node.callee.object;
                     if (
                         objNode.type === "CallExpression"
-                        && this.getNameReg.test(objNode.callee.property.name)
+                        && configObj.getFuncNameReg.test(objNode.callee.property.name)
                         && objNode.callee.object.type === "Identifier"
                         && objNode.callee.object.name === "intl"
                     ) {
@@ -119,14 +79,10 @@ export default class CheckFile {
             if (intlNode) {
                 const intlKey = intlNode.node.callee.object.arguments[0].value;
                 const key = intlNode.node.callee.object.arguments[0].value;
-                const checkResult = this.checkKey(key, nodeValue);
+                const hasKeyNodeValue = generate.default(intlNode.node.arguments[0]).code.slice(1, -1);
+                const checkResult = this.task.checkKey(key, hasKeyNodeValue);
                 const locNode = intlNode.get('loc').node;
-                if (
-                    !checkResult.cn
-                    // || !checkResult.en
-                    // || !checkResult.tw
-                    // || !checkResult.isSame
-                ) {
+                if (this.task.hasFalse(checkResult)) {
                     if (
                         intlNode.node.start
                         || intlNode.node.end
@@ -135,29 +91,28 @@ export default class CheckFile {
                     ) {
                         const keyNode = intlNode.node.callee.object.arguments[0];
                         const textNode = intlNode.node.arguments[0];
-                        errors.push({
-                            type: NodeConstants.HAS_KEY,
-                            filePath,
-                            data: {
-                                start: intlNode.node.start,
-                                end: intlNode.node.end,
-                                startNode: locNode.start,
-                                endNode: locNode.end,
-                                keyNode: keyNode,
-                                keyLocNode: keyNode.loc,
-                                textNode: textNode,
-                                textLocNode: textNode && textNode.loc,
-                            },
-                            intlKey,
-                            intlText: generate.default(intlNode.node.arguments[0]).code.slice(1, -1),
-                            // 这里只考虑.d的第一个参数是字符串, 如果是表达式, 不考虑这种情况, 需要用户特殊处理 
-                            trans: {
-                                cn: checkResult.cn,
-                                en: checkResult.en,
-                                tw: checkResult.tw,
-                                isSame: checkResult.isSame,
-                            }
-                        });
+                        if (!this.task.configObj.customCheckNode(nodePath)) {
+                            errors.push({
+                                type: NodeConstants.HAS_KEY,
+                                filePath,
+                                data: {
+                                    start: intlNode.node.start,
+                                    end: intlNode.node.end,
+                                    startNode: locNode.start,
+                                    endNode: locNode.end,
+                                    keyNode: keyNode,
+                                    keyLocNode: keyNode.loc,
+                                    textNode: textNode,
+                                    textLocNode: textNode && textNode.loc,
+                                },
+                                nodePath,
+                                intlKey,
+                                intlText: hasKeyNodeValue,
+                                // 这里只考虑.d的第一个参数是字符串, 如果是表达式, 不考虑这种情况, 需要用户特殊处理 
+                                trans: checkResult
+                            });
+                        }
+                        
                     } else {
                         throw(new Error('缺少位置信息'));
                     }
@@ -172,17 +127,20 @@ export default class CheckFile {
                         || locNode.start
                         || locNode.end
                     ) {
-                        errors.push({
-                            type: NodeConstants.NO_KEY,
-                            filePath,
-                            data: {
-                                start: node.start,
-                                end: node.end,
-                                startNode: locNode.start,
-                                endNode: locNode.end,
-                            },
-                            intlText: nodeValue
-                        })
+                        if (!this.task.configObj.customCheckNode(nodePath)) {
+                            errors.push({
+                                type: NodeConstants.NO_KEY,
+                                filePath,
+                                data: {
+                                    start: node.start,
+                                    end: node.end,
+                                    startNode: locNode.start,
+                                    endNode: locNode.end,
+                                },
+                                nodePath,
+                                intlText: nodeValue
+                            });
+                        }
                     } else {
                         throw(new Error('缺少位置信息'));
                     }
@@ -230,7 +188,7 @@ export default class CheckFile {
             }, (err: any) => {
                 if (err) {
                     console.log(err);
-                    vscode.window.showWarningMessage(`${config.name}解析失败` + err.stack);
+                    vscode.window.showWarningMessage(`${utils.name}解析失败` + err.stack);
                     return;
                 }
                 const obj: any = {};
@@ -244,7 +202,7 @@ export default class CheckFile {
         })
         
     }
-    getFiles(srcDir: any) {
+    async getFiles(srcDir: any) {
         this.consoleIndex = 0;
         return readfiles(srcDir, {
             // filter: [
@@ -264,7 +222,7 @@ export default class CheckFile {
                 if (this.consoleIndex > 50) {
                     break;
                 }
-                if (/\.(js|tsx|jsx|ts)$/.test(ext) && !this.excludeDir.test(filename)) {
+                if (/\.(js|tsx|jsx|ts)$/.test(ext) && !this.configObj.skipFolderReg.test(filename)) {
                     const errors = await this.checkFile(path.join(srcDir, filename));
                     allerrors = allerrors.concat(errors);
                     utils.appendOutputLine(filename + '分析完毕');

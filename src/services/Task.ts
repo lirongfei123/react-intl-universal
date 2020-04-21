@@ -1,48 +1,74 @@
-import config from "../config";
 import * as vscode from 'vscode';
+import NodeConstants from "../constants/node";
 const fs = require('fs');
+import utils from "../utils"
 export default class {
-    async getConfig() {
-        if (!this.curConfig) {
-            this.curConfig = await config.getConfig();
+    configObj: any = null;
+    langMap: any = null;
+    getConfig() {
+        if (!this.configObj) {
+            this.configObj = utils.getConfig();
         }
-        return this.curConfig;
+        return this.configObj;
     }
-    async getLocalDir() {
-        const configObj: any = await this.getConfig();
-        if (!configObj.localDir) {
-            vscode.window.showErrorMessage(`请提供localDir`);
-            throw(new Error('需要提供localDir'));
-        }
-        return configObj.localDir;
-    }
-    async isError() {
-        
-    }
-    async isWarn() {
-
-    }
-    async isCheck() {
-
-    }
-    async getLang() {
-        const configObj = await this.getConfig();
-        const localDir = await this.getLocalDir();
-        if (!fs.existsSync(localDir)) {
-            vscode.window.showWarningMessage('找不到locales目录, 请至少选择src下面一个文件并打开');
-            throw(new Error('找不到locales目录, 请至少选择src下面一个文件并打开'))
-        }
-        try {
-            Object.keys(configObj.langTitle);
-            const langMap: any = {}
-            Object.keys(configObj.langTitle).forEach(key => {
-                langMap[key] = JSON.parse(fs.readFileSync(`${localDir}/${key}.json`).toString())
+    updateLocals(params: any) {
+        const configObj: any = this.getConfig();
+        const localdir = utils.getLocalDir(configObj);
+        const langData = this.getLang()
+        Object.keys(params).forEach((locKey) => {
+            const originData = langData[locKey];
+            params[locKey].forEach((item: any) => {
+                originData[item.key] = item.text;
             });
-            return langMap;
-        } catch (e) {
-            console.log(e);
-            vscode.window.showWarningMessage(e);
+            fs.writeFileSync(`${localdir}/${locKey}.json`,
+                JSON.stringify(originData, null, 4));
+        });
+    }
+    checkKey(key: string, nodeValue: string) {
+        const langMap = this.getLang();
+        const configObj = this.getConfig();
+        const result: any = {};
+        Object.keys(configObj.langKey).forEach((langKey: any) => {
+            result[langKey] = langMap[langKey][key];
+            if (result[langKey]) {
+                if (langKey === configObj.defaultLang) {
+                    // 如果有模板操作符, 就不做检查, 因为本来就不一致
+                    result[NodeConstants.KEY_SAME] = langMap[langKey][key] == nodeValue.replace(/\$\{/g, '{');
+                }
+            }
+        });
+        return result;
+    }
+    isError(result: any) {
+        const configObj = this.getConfig();
+        return configObj.displayErrorLangs.find((item: any) => {
+            return !result[item];
+        });
+    }
+    isWarn(result: any) {
+        const configObj = this.getConfig();
+        return configObj.displayWarnLangs.find((item: any) => {
+            return !result[item];
+        });
+    }
+    isCheck(result: any) {
+        const configObj = this.getConfig();
+        return configObj.fileCheckLangs.find((item: any) => {
+            return result[item];
+        });
+    }
+    hasFalse(result: any) {
+        return Object.keys(result).find((item: any) => {
+            return !result[item];
+        });
+    }
+    getLang() {
+        if (!this.langMap) {
+            const configObj = this.getConfig();
+            this.langMap = configObj.getLang(configObj);
+            return this.langMap;
+        } else {
+            return this.langMap;
         }
     }
-    curConfig: any = null;
 } 

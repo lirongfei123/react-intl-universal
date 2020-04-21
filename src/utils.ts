@@ -1,13 +1,66 @@
 import {extensions, window} from 'vscode';
 import * as vscode from 'vscode';
-import * as path from 'path';
 import * as fs from 'fs';
-import config from './config';
-
+import defaultConfig from './defaultConfig';
+import NodeConstants from './constants/node';
+const path = require('path');
+const http = require('request-promise');
 class Utils {
+    publisher = 'rongpingli';
+    name = 'react-intl-universal';
+    vsConfigFile = vscode.workspace.getConfiguration(this.name);
+    lastConfig: any = {};
     globalFileInfo: any = {};
     lastActiveTextEditor: any = null;
-    outputChannel = vscode.window.createOutputChannel('dataworks-intl');
+    outputChannel = vscode.window.createOutputChannel('react-intl-universal');
+    getConfig() {
+        var localConfigFileName = this.vsConfigFile.get('localConfigFileName');
+        const src = this.getCurrentFileDir();
+        const findConfigFile = (fileDir: any): any => {
+            if (!path.isAbsolute(fileDir)) {
+                return null;
+                // fileDir = path.resolve(__dirname, fileDir);
+            }
+            if (fileDir == '/') {
+                return null;
+            } else if (
+                !fs.existsSync(`${fileDir}/${localConfigFileName}`)
+            ) {
+                return findConfigFile(
+                    path.dirname(fileDir)
+                    // fileDir.substr(0, fileDir.lastIndexOf('/'))
+                );
+            } else {
+                return `${fileDir}/${localConfigFileName}`;
+            }
+        }
+        const configFile = findConfigFile(src);
+        var configFileObj: any = {};
+        if (configFile) {
+            configFileObj = require(configFile);
+            delete require.cache[configFile];
+            this.lastConfig = {
+                ...defaultConfig,
+                ...configFileObj({
+                    vscode,
+                    utils: this,
+                    constants: {
+                        ...NodeConstants
+                    }
+                })
+            };
+            return this.lastConfig;
+        } else {
+            // vscode.window.showErrorMessage(`请提供${localConfigFileName}配置文件`);
+            throw(new Error('需要提供配置文件'));
+        }
+    }
+    get extensionId() {
+        return `${this.publisher}.${this.name}`;
+    }
+    get extension() {
+        return extensions.getExtension(this.extensionId) as any;
+    }
     appendOutputLine(str: string) {
         this.outputChannel.appendLine(str);
     }
@@ -17,81 +70,82 @@ class Utils {
     showOutput() {
         this.outputChannel.show(true);
     }
-    updateLocals(params: any) {
-        const fileName: any = {
-            cn: 'zh_CN.json',
-            en: 'en_US.json',
-            tw: 'zh_TW.json',
-        }
-        return config.localDir().then((localdir: any) => {
-            return this.getLang().then((data: any) => {
-                Object.keys(params).forEach((locKey) => {
-                    const originData = data[locKey];
-                    params[locKey].forEach((item: any) => {
-                        originData[item.key] = item.text;
-                    });
-                    fs.writeFileSync(`${localdir}/${fileName[locKey]}`,
-                        JSON.stringify(originData, null, 4));
-                });
-            });
-        })
-    }
     get intlConfigFile() {
         const activeTextEditor = window.activeTextEditor;
         if (!activeTextEditor) return;
-        console.log(activeTextEditor.document);
         return '';
     }
     getCurrentFilePath() {
-        return this.getActiveEditor().then((activeTextEditor: any) => {
-            return activeTextEditor.document.fileName;
-        });
+        const activeTextEditor = this.getActiveEditor();
+        return activeTextEditor.document.fileName;
     }
     get getProjectSrc() {
         const activeTextEditor = this.getActiveEditor;
         return `${this.intlConfigFile}/src`;
-        return '';
     }
     getActiveEditor(): any {
-        return new Promise((resolve, reject) => {
-            const activeTextEditor = window.activeTextEditor as any;
-            if (activeTextEditor) {
-                this.lastActiveTextEditor = activeTextEditor;
-                resolve(activeTextEditor);
-            } else if (this.lastActiveTextEditor) {
-                resolve(this.lastActiveTextEditor);
-            } else {
-                window.showInformationMessage('请选择一个文件');
-                reject();
-            }
-        })
+        const activeTextEditor = window.activeTextEditor as any;
+        if (activeTextEditor) {
+            this.lastActiveTextEditor = activeTextEditor;
+            return activeTextEditor;
+        } else if (this.lastActiveTextEditor) {
+            return this.lastActiveTextEditor;
+        } else {
+            window.showInformationMessage('请选择一个文件');
+            throw new Error('请选择一个文件');
+        }
     }
     getCurrentFileDir() {
-        return this.getActiveEditor().then((activeTextEditor: any) => {
-            return path.dirname(activeTextEditor.document.fileName);
+        const activeTextEditor = this.getActiveEditor();
+        return path.dirname(activeTextEditor.document.fileName);
+    }
+    addToMeidusha(task: any, key: string, text: string, callback: any) {
+        const configObj = task.getConfig();
+        if (!configObj.mdsProjectName) {
+            vscode.window.showErrorMessage('需要提供美杜莎项目名称: mdsProjectName');
+            return;
+        }
+        http({
+            method: 'POST',
+            uri: 'http://mcms.alibaba-inc.com/api/batchInsertOrUpdate',
+            form: {
+                userId: "960582",
+                fromAppName: 'onebox',
+                writeDTOs: JSON.stringify(
+                    [
+                        {
+                            "appName": configObj.mdsProjectName,
+                            "key": key,
+                            "tagDTOList":[{"tagName":"tnpm"}],
+                            "i18n":{
+                                "zh_CN": text
+                            }
+                        }
+                    ]
+                )
+            },
+            json: true,
+        }).then((body: any) => {
+            if (body.resultCode && body.resultCode.message === 'success') {
+                vscode.window.showInformationMessage(`美杜莎${configObj.mdsProjectName}提交${key}成功`);
+                task.updateLocals({
+                    [configObj.defaultLang]: [
+                        {
+                            key: key,
+                            text: text
+                        }
+                    ]
+                });
+                callback && callback();
+            }
         });
     }
-    getLang() {
-        return new Promise((resolve, rejects) => {
-            config.localDir().then((localDir: String) => {
-                if (!localDir) {
-                    window.showInformationMessage('找不到locales目录, 请至少选择src下面一个文件并打开');
-                    rejects();
-                    return;
-                }
-                try {
-                    const langMap = {
-                        cn: JSON.parse(fs.readFileSync(`${localDir}/zh_CN.json`).toString()),
-                        en: JSON.parse(fs.readFileSync(`${localDir}/en_US.json`).toString()),
-                        tw: JSON.parse(fs.readFileSync(`${localDir}/zh_TW.json`).toString())
-                    }
-                    resolve(langMap);
-                } catch (e) {
-                    console.log(e);
-                    rejects();
-                }
-            });
-        });
+    getLocalDir(configObj: any) {
+        if (!configObj.localeDir) {
+            vscode.window.showErrorMessage(`请提供localeDir`);
+            throw(new Error('需要提供localeDir'));
+        }
+        return configObj.localeDir;
     }
 }
 export default new Utils();

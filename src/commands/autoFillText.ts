@@ -4,7 +4,6 @@ import Commands from '../constants/commands';
 import * as fs from 'fs';
 import * as path from 'path';
 import utils from "../utils";
-import config from "../config";
 import CheckFile from '../services/checkFiles'
 class AutoFillText {
     ctx: any;
@@ -15,16 +14,15 @@ class AutoFillText {
     init() {
         this.ctx.subscriptions.push(commands.registerCommand(Commands.AUTO_FILL_TEXT, (params) => {
             // 获取当前文件路径, 然后根据路径获取配置文件
-            utils.getActiveEditor().then((activeTextEditor: any) => {
-                activeTextEditor.edit((editBuilder: any) => {
-                    editBuilder.replace(new vscode.Range(
-                        params.range.startLine,
-                        params.range.startColumn,
-                        params.range.endLine,
-                        params.range.endColumn
-                    ), params.text);
-                })
-            });
+            const activeTextEditor = utils.getActiveEditor()
+            activeTextEditor.edit((editBuilder: any) => {
+                editBuilder.replace(new vscode.Range(
+                    params.range.startLine,
+                    params.range.startColumn,
+                    params.range.endLine,
+                    params.range.endColumn
+                ), params.text);
+            })
         }));
     }
     

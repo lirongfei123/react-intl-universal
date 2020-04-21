@@ -25,8 +25,11 @@ intl.config.js 配置文件
 ## 配置
 ### localeDir
 备注: 如果没提供getLang, 此字段必填
+
 说明: 配置国际化语言文件所在目录
+
 类型: 字符串
+
 default: 无
 此参数和getLang必选其一
 ### getLang

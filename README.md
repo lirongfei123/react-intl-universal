@@ -4,6 +4,53 @@
 intl.config.js 配置文件
 返回一个函数, 函数返回config对象
 可以在函数中访问vscode的api
+## 配置示例
+### 阿里内部
+```
+const path = require('path');
+module.exports = ({vscode, utils}) => {
+    return {
+        localeDir: path.join(__dirname, 'src/locales'),
+        skipFolderReg: /BaseChecker|locales/,
+        mdsProjectName: 'XXX',
+        isAli: true,
+        langKey: {
+            en_US: '英语',
+            zh_CN: '中文',
+            zh_TW: '台湾',
+        },
+        customCheckNode: (nodePath) => { // 自定义内容, 不需要可以不配置, 用来console.error('这里有错误') // 这类检查
+            return nodePath.findParent(item => {
+                const node = item.node;
+                if (
+                    (node.type === 'NewExpression'
+                    && node.callee.name === 'Error')
+                    || (
+                        node.type === 'CallExpression'
+                        && node.callee.type === 'MemberExpression'
+                        && node.callee.object.name === 'console'
+                    )
+                ) {
+                    return true;
+                }
+            });
+        }
+    }
+}
+```
+### 阿里外部
+```
+const path = require('path');
+module.exports = ({vscode, utils}) => {
+    return {
+        localeDir: path.join(__dirname, 'locales'),
+        langKey: {
+            zh_CN: '中文'
+        }
+    }
+}
+```
+
 ## 原理
 根据当前文件位置, 向上查找配置文件, 直到找到的第一个为止
 然后根据配置文件, 对当前文件进行国际化分析
@@ -206,53 +253,6 @@ uploadLang: (task: any, key: any, text: any, callback: any) => {
     });
     callback && callback();
     // callback 用来将key, text更新到编辑器
-}
-```
-
-## 配置示例
-### 阿里内部
-```
-const path = require('path');
-module.exports = ({vscode, utils}) => {
-    return {
-        localeDir: path.join(__dirname, 'src/locales'),
-        skipFolderReg: /BaseChecker|locales/,
-        mdsProjectName: 'XXX',
-        isAli: true,
-        langKey: {
-            en_US: '英语',
-            zh_CN: '中文',
-            zh_TW: '台湾',
-        },
-        customCheckNode: (nodePath) => {
-            return nodePath.findParent(item => {
-                const node = item.node;
-                if (
-                    (node.type === 'NewExpression'
-                    && node.callee.name === 'Error')
-                    || (
-                        node.type === 'CallExpression'
-                        && node.callee.type === 'MemberExpression'
-                        && node.callee.object.name === 'console'
-                    )
-                ) {
-                    return true;
-                }
-            });
-        }
-    }
-}
-```
-### 阿里外部
-```
-const path = require('path');
-module.exports = ({vscode, utils}) => {
-    return {
-        localeDir: path.join(__dirname, 'locales'),
-        langKey: {
-            zh_CN: '中文'
-        }
-    }
 }
 ```
 ## 内置服务

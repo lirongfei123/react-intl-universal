@@ -22,7 +22,15 @@ export default {
     customCheckNode: (node: any) => {
         return false;
     },
-    uploadLang: (config: any, key: any, text: any, callback: any) => {
+    uploadLang: (task: any, key: any, text: any, callback: any) => {
+        task.updateLocals({
+            [task.configObj.defaultLang]: [
+                {
+                    key: key,
+                    text: text
+                }
+            ]
+        });
         callback && callback();
     },
     getLang: (configObj: any) => {

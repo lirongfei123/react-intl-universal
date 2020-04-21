@@ -109,7 +109,7 @@ class TransView {
                 if (configObj.isAli) {
                     utils.addToMeidusha(task, data.key, data.text, callback);
                 } else {
-                    configObj.uploadLang && configObj.uploadLang(configObj, data.key, data.text, callback);
+                    configObj.uploadLang && configObj.uploadLang(task, data.key, data.text, callback);
                 }
                 
                 break;

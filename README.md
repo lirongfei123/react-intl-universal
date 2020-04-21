@@ -31,10 +31,13 @@ intl.config.js 配置文件
 类型: 字符串
 
 default: 无
+
 此参数和getLang必选其一
 ### getLang
 说明: 可以自定义获取语言Map的逻辑
+
 类型: 函数
+
 返回: 返回一个跟langKey对应的Map, 比如{zh_CN: {key: value}, en_US: {key: value}, zh_TW: {key, value}}
 default: 默认是读取localeDir目录中的所有文件, 并配置的langKey构建一个语言Map
 ```
@@ -58,7 +61,9 @@ getLang: (configObj: any) => {
 ```
 ### langKey
 说明: 表示本项目要支持哪些语言, 以及国际化文件夹中语言文件的名称映射, 用于在vscode中进行提示
+
 类型: Object
+
 default:
 ```
 {
@@ -69,57 +74,95 @@ default:
 ```
 ### defaultLang
 说明: 默认语言, react-intl-universal .d函数中包裹的语言
+
 类型: string
+
 default: zh_CN
+
 ### displayErrorLangs
 说明: 配置当缺少哪些语言时, 在编辑器中显示红色
+
 类型: array
+
 default: ['zh_CN'] // 表示, 如果没有汉语, 就会显示
+
 ### displayWarnLangs
 说明: 配置当缺少哪些语言时, 在编辑器中显示黄色, 表示警告
+
 类型: array
+
 default: 'zh_CN', 'en_US', 'zh_TW', NodeConstants.KEY_SAME] // 表示, 如果没有汉语, 英语, 繁体, 以及如果.d('')中的文案和localeDir文件夹中文案不一样 就会显示黄色警告
+
 ### fileCheckLangs
 说明: 批量检测时候, 哪些不符合会显示警告
+
 类型: 数组
+
 default: ['zh_CN', 'en_US', 'zh_TW']
+
 ### getFuncNameReg
 说明: 配置intl.get().d() 中get 名称
+
 类型: 正则
+
 default: /^get|getHTML$/
+
 ### defaultFuncNameReg
 说明: 配置intl.get().d() 中d 名称
+
 类型: 正则
+
 default: /^d|defaultMessage$/
+
 ### skipFolderReg
 说明: 批量检测时候, 跳过哪些文件
+
 类型: 正则
+
 default: /locales/
+
 ### checkFileReg
 说明: 批量检测时候, 要检测哪些文件
+
 类型: 正则
+
 default: /\.(?:ts|js|jsx|tsx)$/
+
 ### notSameText
 说明: 配置文案, 提示不一致的时候, '不一致' 文案自定义
+
 类型: string
+
 default: '不一致'
+
 ### prefixStatusText
 说明: 配置文案, 批量检测, 提示错误的时候, '缺少' 文案
+
 类型: string
+
 default: '缺少'
+
 ### isAli
 说明: 配置是否是阿里内部, 如果为true, 将默认上传到美杜莎, 如果配置为true, 必须配置mdsProjectName
+
 类型: boolean
+
 default: false
+
 ### mdsProjectName
 说明: 美杜莎的项目名称, 请一定注意让美杜沙项目owner到 https://acl.alibaba-inc.com/my/owner/permission/manage.htm?key=${appName} 将应用「修改」、「审核」权限授权给「one_box」帐号
+
 类型: string
+
 default: 无
+
 ### uploadLang
 
 ### customCheckNode
 说明: 自定义语法分析逻辑, 哪些汉语会被忽略, 比如`console.error('这里有错误');` 这种汉子是不需要翻译的
+
 类型: function
+
 default:
 ```
 customCheckNode: (node: any) => {
@@ -147,7 +190,9 @@ customCheckNode: (nodePath) => {
 ```
 ### uploadLang
 说明: 自定义上传逻辑, 点击上传到语言服务器的时候, 执行的逻辑
+
 类型: function
+
 default:
 ```
 uploadLang: (task: any, key: any, text: any, callback: any) => {

@@ -34,26 +34,22 @@ class TransView {
             );
             const {webview} = this.panel;
             try {
-                console.log(path.join(utils.extension.extensionPath, 'static/trans.html'));
-                console.log(path.join(this.ctx.extensionPath, 'static/trans.html'));
-                const html = vscode.workspace.fs.readFile(vscode.Uri.file(path.join(utils.extension.extensionPath, 'static/trans.html')))
+                vscode.workspace.fs.readFile(vscode.Uri.file(path.join(utils.extension.extensionPath, 'static/trans.html')))
                 .then((data: any) => {
-                    console.log(data.toString(), '-0-0-0-0');
                     webview.html = data.toString();
+                    this.panel.onDidChangeViewState((webview: any) => {
+                        if (webview.webviewPanel.active) {
+                            // this.panel.webview.postMessage({
+                            //     type: EventConstants.ADD_TO_MEIDUSHA,
+                            //     data: params
+                            // });
+                        }
+                    });
+                    this.panel.onDidDispose((webview: any) => {
+                        this.panel = null;
+                    });
+                    webview.onDidReceiveMessage(this.onMessage.bind(this));
                 });
-                console.log(html, '=-=-==-=-=-=--=-==-');
-                this.panel.onDidChangeViewState((webview: any) => {
-                    if (webview.webviewPanel.active) {
-                        // this.panel.webview.postMessage({
-                        //     type: EventConstants.ADD_TO_MEIDUSHA,
-                        //     data: params
-                        // });
-                    }
-                });
-                this.panel.onDidDispose((webview: any) => {
-                    this.panel = null;
-                });
-                webview.onDidReceiveMessage(this.onMessage.bind(this));
             } catch (e) {
                 console.log(e);
             }

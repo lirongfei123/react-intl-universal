@@ -53,7 +53,6 @@ class TransView {
             } catch (e) {
                 console.log(e);
             }
-            
         } else {
             this.panel.webview.postMessage({
                 type: EventConstants.ADD_TO_MEIDUSHA,

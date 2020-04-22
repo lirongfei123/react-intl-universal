@@ -70,7 +70,7 @@ module.exports = ({vscode, utils}) => {
 
 ### 功能二, 没有翻译的自动提交美杜莎翻译(可定制翻译逻辑), 并直接替换, 支持自动生成key
 
-![](https://img.alicdn.com/tfs/TB1wLpyC4D1gK0jSZFyXXciOVXa-926-236.gif)
+![](https://img.alicdn.com/tfs/TB1IlhyCYj1gK0jSZFOXXc7GpXa-1090-648.gif)
 ### 支持查看所有文件, 标识出那些文件有美杜莎错误, 并自动标红, 自动跳转
 
 ![](https://img.alicdn.com/tfs/TB1pC_3C1L2gK0jSZFmXXc7iXXa-1348-820.gif)

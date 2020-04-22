@@ -71,7 +71,7 @@ class CodeHover implements HoverProvider {
             } else {
                 return this.getHoverValue([
                     [
-                        '添加到美杜莎',
+                        '添加到服务器',
                         Commands.OPEN_WEBVIEW,
                         {
                             range: range,
@@ -121,7 +121,7 @@ class CodeHover implements HoverProvider {
                     } else {
                         return this.getHoverValue([
                             [
-                                '已经添加到美杜莎, 但是缺少英文, 或者繁体',
+                                '已经添加到服务器, 但是缺少英文, 或者繁体',
                                 Commands.OPEN_WEBVIEW,
                                 {
                                     range: range,
@@ -148,7 +148,7 @@ class CodeHover implements HoverProvider {
                     } else {
                         return this.getHoverValue([
                             [
-                                '不存在Key, 添加到美杜莎',
+                                '不存在Key, 添加到服务器',
                                 Commands.OPEN_WEBVIEW,
                                 {
                                     range: range,

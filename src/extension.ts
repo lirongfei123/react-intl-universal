@@ -1,7 +1,17 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
+// "react-intl-universal.globalConfigType": {
+// "type": "string",
+// "default": "npm",
+// "description": "配置类型, 是文件路径, 还是npm包, 值有:npm 或者 file"
+// },
+// "react-intl-universal.globalConfig": {
+// "type": "string",
+// "default": "",
+// "description": "配置文件地址, JS文件, 可以使用nodejs API"
+// },
 import * as vscode from 'vscode';
-import * as actionModules from './actions/codeAction';
+// import * as actionModules from './actions/codeAction';
 import * as annotationModules from './annotations/checkIntl';
 import * as hoverModules from './hovers/crateIntl';
 import * as customCommands from './commands/index';
@@ -20,7 +30,7 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.window.showInformationMessage('Hello World!');
 	});
 	Object.values({
-		...actionModules, 
+		// ...actionModules, 
 		...annotationModules,
 		...hoverModules,
 		...customCommands

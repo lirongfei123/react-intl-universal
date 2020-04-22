@@ -2,11 +2,12 @@
   "name": "react-intl-universal",
   "publisher": "rongpingli",
   "displayName": "react-intl-universal",
-  "description": "",
-  "version": "0.0.1",
+  "description": "react 国际化自动填充插件",
+  "version": "0.0.2",
   "engines": {
     "vscode": "^1.43.0"
   },
+  "repository": "https://github.com/lirongfei123/react-intl-universal",
   "categories": [
     "Other"
   ],
@@ -30,16 +31,6 @@
       "type": "object",
       "title": "react-intl-universal",
       "properties": {
-        "react-intl-universal.globalConfigType": {
-          "type": "string",
-          "default": "npm",
-          "description": "配置类型, 是文件路径, 还是npm包, 值有:npm 或者 file"
-        },
-        "react-intl-universal.globalConfig": {
-          "type": "string",
-          "default": "",
-          "description": "配置文件地址, JS文件, 可以使用nodejs API"
-        },
         "react-intl-universal.localConfigFileName": {
           "type": "string",
           "default": "intl.config.js",

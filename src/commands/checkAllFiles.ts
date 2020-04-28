@@ -32,7 +32,7 @@ class CheckFiles {
                     utils.clearOutput();
                     ferrors = ferrors.filter((item: any) => {
                         if (item.type === NodeConstants.HAS_KEY) {
-                            return !task.isCheck(item.trans);
+                            return task.isCheck(item.trans);
                         } else if (item.type === NodeConstants.NO_KEY) {
                             return true;
                         }

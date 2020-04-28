@@ -68,10 +68,10 @@ module.exports = ({vscode, utils}) => {
 ### 提示是否有英文, 繁体(颜色标识黄色)
 ![](https://img.alicdn.com/tfs/TB1wLpyC4D1gK0jSZFyXXciOVXa-926-236.gif)
 
-### 功能二, 没有翻译的自动提交美杜莎翻译(可定制翻译逻辑), 并直接替换, 支持自动生成key
+### 功能二, 没有翻译的自动提交服务器(内部使用美杜莎)翻译(可定制翻译逻辑), 并直接替换, 支持自动生成key
 
 ![](https://img.alicdn.com/tfs/TB1IlhyCYj1gK0jSZFOXXc7GpXa-1090-648.gif)
-### 支持查看所有文件, 标识出那些文件有美杜莎错误, 并自动标红, 自动跳转
+### 支持查看所有文件, 标识出那些文案未翻译, 并自动标红, 自动跳转
 
 ![](https://img.alicdn.com/tfs/TB1pC_3C1L2gK0jSZFmXXc7iXXa-1348-820.gif)
 
@@ -122,7 +122,6 @@ default:
 {
     zh_CN: '中文',
     en_US: '英文',
-    zh_TW: '繁体',
 }
 ```
 ### defaultLang
@@ -137,21 +136,21 @@ default: zh_CN
 
 类型: array
 
-default: ['zh_CN'] // 表示, 如果没有汉语, 就会显示
+default: [defaultLang的值] // 表示, 如果没有汉语, 就会显示
 
 ### displayWarnLangs
 说明: 配置当缺少哪些语言时, 在编辑器中显示黄色, 表示警告
 
 类型: array
 
-default: 'zh_CN', 'en_US', 'zh_TW', NodeConstants.KEY_SAME] // 表示, 如果没有汉语, 英语, 繁体, 以及如果.d('')中的文案和localeDir文件夹中文案不一样 就会显示黄色警告
+default: [langKey中的所有值, NodeConstants.KEY_SAME] // 表示, 如果没有汉语, 英语, 繁体, 以及如果.d('')中的文案和localeDir文件夹中文案不一样 就会显示黄色警告
 
 ### fileCheckLangs
 说明: 批量检测时候, 哪些不符合会显示警告
 
 类型: 数组
 
-default: ['zh_CN', 'en_US', 'zh_TW']
+default: [langKey中的所有值]
 
 ### getFuncNameReg
 说明: 配置intl.get().d() 中get 名称
@@ -172,7 +171,7 @@ default: /^d|defaultMessage$/
 
 类型: 正则
 
-default: /locales/
+default: /(?:locales|intl\.config)/
 
 ### checkFileReg
 说明: 批量检测时候, 要检测哪些文件
@@ -208,8 +207,6 @@ default: false
 类型: string
 
 default: 无
-
-### uploadLang
 
 ### customCheckNode
 说明: 自定义语法分析逻辑, 哪些汉语会被忽略, 比如`console.error('这里有错误');` 这种汉子是不需要翻译的

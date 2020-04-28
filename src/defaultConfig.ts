@@ -6,18 +6,17 @@ export default {
     langKey: {
         zh_CN: '中文',
         en_US: '英文',
-        zh_TW: '繁体',
     },// 一共支持哪些语言, 必选
     isAli: false,
     notSameText: '不一致',
-    displayErrorLangs: ['zh_CN'], // 显示红色
     defaultLang: 'zh_CN', // 代码里面写的是那种语言, .d后面的语言
     prefixStatusText: '缺少',
-    displayWarnLangs: ['zh_CN', 'en_US', 'zh_TW', NodeConstants.KEY_SAME], // 显示黄色
-    fileCheckLangs: ['zh_CN', 'en_US', 'zh_TW'], // 批量检查的时候, 检查哪些错误 
+    displayErrorLangs: null, // 显示红色
+    displayWarnLangs: null, // 显示黄色 NodeConstants.KEY_SAME
+    fileCheckLangs: null, // 批量检查的时候, 检查哪些错误 
     defaultFuncNameReg: /^d|defaultMessage$/,
     getFuncNameReg: /^get|getHTML$/,
-    skipFolderReg: /locales/,
+    skipFolderReg: /(?:locales|intl\.config)/,
     checkFileReg: /\.(?:ts|js|jsx|tsx)$/,
     customCheckNode: (node: any) => {
         return false;

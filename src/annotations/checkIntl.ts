@@ -58,7 +58,10 @@ class CheckAnnotation {
                             renderOptions: {
                                 after: {
                                     color: 'rgba(153, 153, 153, .7)',
-                                    contentText: checkFileService.getStatusText(item.trans),
+                                    contentText: checkFileService.getStatusText(
+                                        item.trans,
+                                        task.getConfig().displayWarnLangs
+                                    ),
                                     fontWeight: 'normal',
                                     fontStyle: 'normal'
                                 }

@@ -54,7 +54,7 @@ export default class {
     isCheck(result: any) {
         const configObj = this.getConfig();
         return configObj.fileCheckLangs.find((item: any) => {
-            return result[item];
+            return !result[item];
         });
     }
     hasFalse(result: any) {

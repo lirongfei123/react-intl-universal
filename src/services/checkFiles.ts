@@ -19,17 +19,21 @@ export default class CheckFile {
             throw(new Error('必须传入task'));
         }
     }
-    getStatusText(result: any) {
+    getStatusText(result: any, checkLangs?: any) {
         const configObj = this.task.getConfig();
         var text = configObj.prefixStatusText;
-        Object.keys(configObj.langKey).forEach((item: any) => {
-            if (!result[item] && configObj.langKey[item]) {
-                text += ' ' + configObj.langKey[item];
+        if (!checkLangs) {
+            checkLangs = [...Object.keys(configObj.langKey), NodeConstants.KEY_SAME];
+        }
+        checkLangs.forEach((item: any) => {
+            if (item != NodeConstants.KEY_SAME) {
+                if (!result[item] && configObj.langKey[item]) {
+                    text += ' ' + configObj.langKey[item];
+                }
+            } else {
+                text += ' ' + configObj.notSameText;
             }
         });
-        if (!result[NodeConstants.KEY_SAME]) {
-            text += ' ' + configObj.notSameText;
-        }
         return text;
     }
     consolePath(filePath: string, result: any) {
@@ -150,6 +154,10 @@ export default class CheckFile {
     }
     checkFile(filepath: any){
         return new Promise((resolve) => {
+            if (this.task.getConfig().skipFolderReg.test(filepath)) {
+                resolve([]);
+                return;
+            }
             const errors: any = [];
             babelCore.transformFile(filepath, {
                 presets: [

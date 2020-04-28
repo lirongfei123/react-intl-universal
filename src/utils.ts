@@ -39,16 +39,33 @@ class Utils {
         if (configFile) {
             configFileObj = require(configFile);
             delete require.cache[configFile];
-            this.lastConfig = {
+            const userConfig = configFileObj({
+                vscode,
+                defaultConfig: defaultConfig,
+                utils: this,
+                constants: {
+                    ...NodeConstants
+                }
+            });
+            const lastConfig = {
                 ...defaultConfig,
-                ...configFileObj({
-                    vscode,
-                    utils: this,
-                    constants: {
-                        ...NodeConstants
-                    }
-                })
-            };
+                ...userConfig
+            }
+            // 默认lang 是否在langKey定义
+            if (!lastConfig.langKey[lastConfig.defaultLang]) {
+                vscode.window.showErrorMessage(`defaultLang: ${lastConfig.defaultLang} 默认语言, 在langKey中不存在`);
+                return null;
+            }
+            if (!lastConfig.displayErrorLangs) {
+                lastConfig.displayErrorLangs = [lastConfig.defaultLang];
+            }
+            if (!lastConfig.displayWarnLangs) {
+                lastConfig.displayWarnLangs = [...Object.keys(lastConfig.langKey), NodeConstants.KEY_SAME];
+            }
+            if (!lastConfig.fileCheckLangs) {
+                lastConfig.fileCheckLangs = [...Object.keys(lastConfig.langKey), NodeConstants.KEY_SAME];
+            }
+            this.lastConfig = lastConfig;
             return this.lastConfig;
         } else {
             // vscode.window.showErrorMessage(`请提供${localConfigFileName}配置文件`);
@@ -137,7 +154,11 @@ class Utils {
                     ]
                 });
                 callback && callback();
+            } else {
+                vscode.window.showWarningMessage(`美杜莎提交失败: ${body.errorDetail}`);
             }
+        }).catch((err: any) => {
+            console.log(err);
         });
     }
     getLocalDir(configObj: any) {

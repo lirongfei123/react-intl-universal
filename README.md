@@ -143,14 +143,14 @@ default: [defaultLang的值] // 表示, 如果没有汉语, 就会显示
 
 类型: array
 
-default: [langKey中的所有值, NodeConstants.KEY_SAME] // 表示, 如果没有汉语, 英语, 繁体, 以及如果.d('')中的文案和localeDir文件夹中文案不一样 就会显示黄色警告
+default: [langKey中的所有key值, NodeConstants.KEY_SAME] // 表示, 如果没有汉语, 英语, 繁体, 以及如果.d('')中的文案和localeDir文件夹中文案不一样 就会显示黄色警告
 
 ### fileCheckLangs
 说明: 批量检测时候, 哪些不符合会显示警告
 
 类型: 数组
 
-default: [langKey中的所有值]
+default: [langKey中的所有key值]
 
 ### getFuncNameReg
 说明: 配置intl.get().d() 中get 名称

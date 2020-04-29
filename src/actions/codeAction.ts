@@ -1,6 +1,6 @@
 import * as vscode from 'vscode'
 import CommandConstants from '../constants/commands';
-
+const CRC32 = require('crc-32'); 
 abstract class Extract implements vscode.CodeActionProvider {
   abstract getCommands(params: any): vscode.Command[]
 
@@ -8,39 +8,40 @@ abstract class Extract implements vscode.CodeActionProvider {
     const editor: any = vscode.window.activeTextEditor
     const { selection } = editor;
     const text = editor.document.getText(selection)
+    const start = selection.start;
+    const end = selection.end;
     if (!text || selection.start.line !== selection.end.line) {
       return [];
     }
-
+    if (!/[\u4e00-\u9fa5]/.test(text)) {
+      return [];
+    }
     return this.getCommands({
-      filepath: editor.document.fileName,
-      range: selection,
-      text
+      range: {
+        startLine: start.line,
+        startColumn: start.character,
+        endLine: end.line,
+        endColumn: end.character,
+      },
+      text,
+      key: CRC32.str(text),
+      type: 'replaceWhole'
     })
   }
 }
-
+// range: range,
+// text: info.intlText,
+// key: CRC32.str(info.intlText),
+// type: 'replaceWhole'
 class ExtractProvider extends Extract {
-
   getCommands(params: any) {
     return [
       {
         command: CommandConstants.OPEN_WEBVIEW,
-        title: `提取为$t('key')`,
+        title: `提交到服务器`,
         arguments: [
           {
-            ...params,
-            keyReplace: CommandConstants.OPEN_WEBVIEW
-          }
-        ]
-      },
-      {
-        command: 'vue-i18n.extract',
-        title: `提取为i18n.t('key')`,
-        arguments: [
-          {
-            ...params,
-            keyReplace: 'werwerwerw'
+            ...params
           }
         ]
       }

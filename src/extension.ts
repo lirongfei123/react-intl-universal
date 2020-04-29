@@ -11,7 +11,7 @@
 // "description": "配置文件地址, JS文件, 可以使用nodejs API"
 // },
 import * as vscode from 'vscode';
-// import * as actionModules from './actions/codeAction';
+import * as actionModules from './actions/codeAction';
 import * as annotationModules from './annotations/checkIntl';
 import * as hoverModules from './hovers/crateIntl';
 import * as customCommands from './commands/index';
@@ -30,7 +30,7 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.window.showInformationMessage('Hello World!');
 	});
 	Object.values({
-		// ...actionModules, 
+		...actionModules, 
 		...annotationModules,
 		...hoverModules,
 		...customCommands

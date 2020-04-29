@@ -17,6 +17,7 @@ class TransView {
     }
     init() {
         this.ctx.subscriptions.push(commands.registerCommand(CommandConstants.OPEN_WEBVIEW, (params) => {
+            params.text = params.text.replace(/^[`'"]|[`";\']$/g, '');
             this.lastParams = params;
             this.createPanel(params);
         }));

@@ -26,12 +26,12 @@ export default class CheckFile {
             checkLangs = [...Object.keys(configObj.langKey), NodeConstants.KEY_SAME];
         }
         checkLangs.forEach((item: any) => {
-            if (item != NodeConstants.KEY_SAME) {
+            if (item == NodeConstants.KEY_SAME && !result[NodeConstants.KEY_SAME]) {
+                text += ' ' + configObj.notSameText;
+            } else {
                 if (!result[item] && configObj.langKey[item]) {
                     text += ' ' + configObj.langKey[item];
                 }
-            } else {
-                text += ' ' + configObj.notSameText;
             }
         });
         return text;

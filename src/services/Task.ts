@@ -33,7 +33,7 @@ export default class {
             if (result[langKey]) {
                 if (langKey === configObj.defaultLang) {
                     // 如果有模板操作符, 就不做检查, 因为本来就不一致
-                    result[NodeConstants.KEY_SAME] = langMap[langKey][key] == nodeValue.replace(/\$\{/g, '{');
+                    result[NodeConstants.KEY_SAME] = langMap[langKey][key] === nodeValue.replace(/\$\{/g, '{');
                 }
             }
         });

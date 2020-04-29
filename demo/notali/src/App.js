@@ -6,7 +6,7 @@ function App() {
   return (
     <div className="App">
       <div>{intl.get('1920159459').d('这里是测试汉子')}</div>
-      <div>这里是测试汉子2</div>
+      <div>{intl.get('125442853').d('这里是测试汉子${e}你好')}</div>
     </div>
   );
 }

@@ -49,7 +49,8 @@ class Utils {
             });
             const lastConfig = {
                 ...defaultConfig,
-                ...userConfig
+                ...userConfig,
+                baseDir: path.dirname(configFile)
             }
             // 默认lang 是否在langKey定义
             if (!lastConfig.langKey[lastConfig.defaultLang]) {

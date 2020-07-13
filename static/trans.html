@@ -84,6 +84,8 @@
                 this.form.intlKey = data.key;
                 this.form.intlText = data.text;
                 this.range = data.range;
+                this.hasParams = data.hasParams;
+                this.replaceParams = data.replaceParams;
                 this.type = data.type;
                 break;
               }
@@ -108,6 +110,9 @@
                 text: this.form.intlText,
                 key: this.form.intlKey,
                 range: this.range,
+                hasParams: this.hasParams,
+                getMethod: this.getMethod,
+                replaceParams: this.replaceParams,
                 type: this.type,
                 hasKuo: hasKuo || false
               }
@@ -132,6 +137,9 @@
                 text: this.form.intlText,
                 key: this.form.intlKey,
                 range: this.range,
+                hasParams: this.hasParams,
+                getMethod: this.getMethod,
+                replaceParams: this.replaceParams,
                 type: this.type,
                 isUpdate: isUpdate || false,
                 hasKuo: hasKuo || false

@@ -5,6 +5,7 @@ const babelCore = require('@babel/core');
 var readfiles = require('node-readfiles');
 var generate = require('@babel/generator');
 const path = require('path');
+const t = require("@babel/types");
 export default class CheckFile {
     consoleIndex: number = 0;
     task: any = null;
@@ -55,7 +56,7 @@ export default class CheckFile {
     checkNode(nodePath: any, errors?: any) {
         const configObj = this.task.getConfig();
         errors = errors || [];
-        const nodeValue = this.getNodeValue(nodePath.node);
+        let nodeValue = this.getNodeValue(nodePath.node);
         if (
             /[\u4e00-\u9fa5]/.test(nodeValue)
         ) {
@@ -79,7 +80,7 @@ export default class CheckFile {
                 }
                 return false;
             });
-            
+            let replaceParams = null, hasParams = false;
             if (intlNode) {
                 const intlKey = intlNode.node.callee.object.arguments[0].value;
                 const key = intlNode.node.callee.object.arguments[0].value;
@@ -122,7 +123,34 @@ export default class CheckFile {
                     }
                 }
             } else if (nodePath.node.loc){
-                const node = nodePath.node;
+                let node = nodePath.node;
+                // 对模板字符串单独处理
+                if (node.type === 'TemplateElement') {
+                    let newNodePath = nodePath.findParent((item: any) => {
+                        return item.node.type === 'TemplateLiteral';
+                    });
+                    if (newNodePath) {
+                        node = newNodePath.node;
+                        const properties: any = [];
+                        var params: any = [];
+                        node.expressions.forEach((value: any, index: any) => {
+                            params.push(`{key${index}}`);
+                            properties.push(t.objectProperty(t.identifier(`key${index}`), value));
+                        });
+                        if (properties.length > 0) {
+                            hasParams = true;
+                            replaceParams = generate.default(t.objectExpression(properties)).code;
+                        }
+                        const replaceTextArr: any = [];
+                        node.quasis.forEach((item: any) => {
+                            replaceTextArr.push(item.value.raw);
+                            if (params.length) {
+                                replaceTextArr.push(params.shift());
+                            }
+                        });
+                        nodeValue = replaceTextArr.join('');
+                    }
+                }
                 if (node) {
                     const locNode = node.loc;
                     if (
@@ -132,6 +160,7 @@ export default class CheckFile {
                         || locNode.end
                     ) {
                         if (!this.task.configObj.customCheckNode(nodePath)) {
+                            const isHtml = /<(?:html|head|title|base|link|meta|style|script|noscript|template|body|section|nav|article|aside|h1|h2|h3|h4|h5|h6|header|footer|address|main|p|hr|pre|blockquote|ol|ul|li|dl|dt|dd|figure|figcaption|div|a|em|strong|small|s|cite|q|dfn|abbr|data|time|code|var|samp|kbd|sub|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo|span|br|wbr|ins|del|img|iframe|embed|object|param|video|audio|source|track|canvas|map|area|svg|math|table|caption|colgroup|col|tbody|thead|tfoot|tr|td|th|form|fieldset|legend|label|input|button|select|datalist|optgroup|option|textarea|keygen|output|progress|meter|details|summary|menuitem|menu)[^>]*>/;
                             errors.push({
                                 type: NodeConstants.NO_KEY,
                                 filePath,
@@ -140,6 +169,9 @@ export default class CheckFile {
                                     end: node.end,
                                     startNode: locNode.start,
                                     endNode: locNode.end,
+                                    replaceParams,
+                                    hasParams,
+                                    getMethod: isHtml ? 'getHTML': 'get'
                                 },
                                 nodePath,
                                 intlText: nodeValue

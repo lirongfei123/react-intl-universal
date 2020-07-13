@@ -66,12 +66,14 @@ class TransView {
     }
     webviewReplace(params: any) {
         var text = '';
+        const getMethod = params.getMethod || 'get';
+        const getParams = params.hasParams ? ', ' + params.replaceParams : '';
         if (params.type === 'replaceKey') {
             text = `'${params.key}'`;
         } else if (params.type === 'replaceWhole' && !params.hasKuo) {
-            text = `intl.get('${params.key}').d('${params.text}')`;
+            text = `intl.${getMethod}('${params.key}'${getParams}).d('${params.text}')`;
         } else if (params.type === 'replaceWhole' && params.hasKuo) {
-            text = `{intl.get('${params.key}').d('${params.text}')}`;
+            text = `{intl.${getMethod}('${params.key}'${getParams}).d('${params.text}')}`;
         }
         vscode.commands.executeCommand(CommandConstants.AUTO_FILL_TEXT, {
             range: params.range,

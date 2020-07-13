@@ -8,11 +8,18 @@ import { debounce } from 'lodash'
 import CheckFile from '../services/checkFiles';
 import NodeConstants from "../constants/node";
 import Task from "../services/Task";
-var CRC32 = require('crc-32'); 
+var CRC32 = require('crc-32');
 class CodeHover implements HoverProvider {
     task: any = null;
     configObj: any = {};
     constructor() {
+    }
+    getKeyByFileAndText(text: any) {
+        const currentFilePath = utils.getCurrentFilePath();
+        const relativePath = path.relative(this.configObj.baseDir, currentFilePath);
+        const dirName = path.dirname(relativePath);
+        const fileName = path.basename(relativePath, path.extname(relativePath));
+        return dirName.split('/').slice(-3).concat(fileName, CRC32.str(text)).join('_');
     }
     checkHasCn(cnText: string) {
         const langData = this.task.getLang();
@@ -74,9 +81,12 @@ class CodeHover implements HoverProvider {
                         '添加到服务器',
                         Commands.OPEN_WEBVIEW,
                         {
+                            replaceParams: info.data.replaceParams,
+                            hasParams: info.data.hasParams,
+                            getMethod: info.data.getMethod,
                             range: range,
                             text: info.intlText,
-                            key: CRC32.str(info.intlText),
+                            key: this.getKeyByFileAndText(info.intlText),
                             type: 'replaceWhole'
                         }
                     ]
@@ -126,7 +136,7 @@ class CodeHover implements HoverProvider {
                                 {
                                     range: range,
                                     text: info.intlText,
-                                    key: CRC32.str(info.intlText),
+                                    key: this.getKeyByFileAndText(info.intlText),
                                     type: 'replaceWhole'
                                 }
                             ]

@@ -19,7 +19,7 @@ class CodeHover implements HoverProvider {
         const relativePath = path.relative(this.configObj.baseDir, currentFilePath);
         const dirName = path.dirname(relativePath);
         const fileName = path.basename(relativePath, path.extname(relativePath));
-        return dirName.split('/').slice(-3).concat(fileName, CRC32.str(text)).join('_');
+        return dirName.split(/\/|\\/g).slice(-1).concat(fileName, CRC32.str(text)).join('_');
     }
     checkHasCn(cnText: string) {
         const langData = this.task.getLang();

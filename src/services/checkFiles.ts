@@ -139,7 +139,7 @@ export default class CheckFile {
                         });
                         if (properties.length > 0) {
                             hasParams = true;
-                            replaceParams = generate.default(t.objectExpression(properties)).code;
+                            replaceParams = generate.default(t.objectExpression(properties), {compact: true}).code;
                         }
                         const replaceTextArr: any = [];
                         node.quasis.forEach((item: any) => {

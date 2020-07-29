@@ -96,7 +96,7 @@ export default class CheckFile {
                     ) {
                         const keyNode = intlNode.node.callee.object.arguments[0];
                         const textNode = intlNode.node.arguments[0];
-                        if (!this.task.configObj.customCheckNode(nodePath)) {
+                        if (!this.task.configObj.ignoreCheckNode(nodePath)) {
                             errors.push({
                                 type: NodeConstants.HAS_KEY,
                                 filePath,
@@ -159,7 +159,7 @@ export default class CheckFile {
                         || locNode.start
                         || locNode.end
                     ) {
-                        if (!this.task.configObj.customCheckNode(nodePath)) {
+                        if (!this.task.configObj.ignoreCheckNode(nodePath)) {
                             const isHtml = /<(?:html|head|title|base|link|meta|style|script|noscript|template|body|section|nav|article|aside|h1|h2|h3|h4|h5|h6|header|footer|address|main|p|hr|pre|blockquote|ol|ul|li|dl|dt|dd|figure|figcaption|div|a|em|strong|small|s|cite|q|dfn|abbr|data|time|code|var|samp|kbd|sub|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo|span|br|wbr|ins|del|img|iframe|embed|object|param|video|audio|source|track|canvas|map|area|svg|math|table|caption|colgroup|col|tbody|thead|tfoot|tr|td|th|form|fieldset|legend|label|input|button|select|datalist|optgroup|option|textarea|keygen|output|progress|meter|details|summary|menuitem|menu)[^>]*>/;
                             errors.push({
                                 type: NodeConstants.NO_KEY,

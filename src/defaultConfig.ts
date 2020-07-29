@@ -19,7 +19,7 @@ export default {
     getFuncNameReg: /^get|getHTML$/,
     skipFolderReg: /(?:locales|intl\.config)/,
     checkFileReg: /\.(?:ts|js|jsx|tsx)$/,
-    customCheckNode: (node: any) => {
+    ignoreCheckNode: (node: any) => {
         return false;
     },
     uploadLang: (task: any, key: any, text: any, callback: any) => {

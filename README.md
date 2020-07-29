@@ -17,14 +17,14 @@ module.exports = ({vscode, utils}) => {
     return {
         localeDir: path.join(__dirname, 'src/locales'),
         skipFolderReg: /BaseChecker|locales/,
-        mdsProjectName: 'XXX',
+        mdsProjectName: 'XXX',// 参考文章：https://yuque.alibaba-inc.com/docs/share/69310a95-b3f1-4e77-a56c-2b0b2c82ae1c
         isAli: true,
         langKey: {
             en_US: '英语',
             zh_CN: '中文',
             zh_TW: '台湾',
         },
-        customCheckNode: (nodePath) => { // 自定义内容, 不需要可以不配置, 用来console.error('这里有错误') // 这类检查
+        ignoreCheckNode: (nodePath) => { // 自定义内容, 不需要可以不配置, 比如下面的代码，用来忽略console.error('这里有错误') 这类检查
             return nodePath.findParent(item => {
                 const node = item.node;
                 if (
@@ -218,13 +218,13 @@ default: 无
 
 default:
 ```
-customCheckNode: (node: any) => {
+ignoreCheckNode: (node: any) => {
     return false;
 }
 ```
 示例: 不提示 console.error('这里有错误') 的错误
 ```
-customCheckNode: (nodePath) => {
+ignoreCheckNode: (nodePath) => {
     return nodePath.findParent(item => {
         const node = item.node;
         if (

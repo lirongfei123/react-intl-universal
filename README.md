@@ -1,11 +1,14 @@
 # react-intl-universal
 ## 使用方法
+### 此插件需要配合`react-intl-universal`库使用
+库地址： https://github.com/alibaba/react-intl-universal
 ### 在需要做国际化的文件夹(一般可以是项目跟目录)建立
 intl.config.js 配置文件
 
 返回一个函数, 函数返回config对象
 
 可以在函数中访问vscode的api
+
 ## 配置示例
 ### 阿里内部
 ```

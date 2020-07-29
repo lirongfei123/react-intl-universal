@@ -6,10 +6,10 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>提交服务器</title>
     <!-- 引入样式 -->
-    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <link rel="stylesheet" href="https://g.alicdn.com/dwfe/common/0.0.4/vue/index.css">
     <!-- 引入组件库 -->
-    <script src="https://unpkg.com/vue/dist/vue.js"></script>
-    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="https://g.alicdn.com/dwfe/common/0.0.4/vue/index.js"></script>
+    <script src="https://g.alicdn.com/dwfe/common/0.0.4/vue/element.js"></script>
     <style type="type/css">
       .input {
         width: 100%;
@@ -85,6 +85,7 @@
                 this.form.intlText = data.text;
                 this.range = data.range;
                 this.hasParams = data.hasParams;
+                this.getMethod = data.getMethod;
                 this.replaceParams = data.replaceParams;
                 this.type = data.type;
                 break;

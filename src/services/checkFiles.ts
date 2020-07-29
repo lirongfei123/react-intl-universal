@@ -171,7 +171,7 @@ export default class CheckFile {
                                     endNode: locNode.end,
                                     replaceParams,
                                     hasParams,
-                                    getMethod: isHtml ? 'getHTML': 'get'
+                                    getMethod: isHtml.test(nodeValue) ? 'getHTML': 'get'
                                 },
                                 nodePath,
                                 intlText: nodeValue

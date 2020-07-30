@@ -63,7 +63,7 @@ module.exports = ({vscode, utils}) => {
 ### 功能一, 自动查找已有Key, 并自动补全
 #### 替换全部
 
-![](https://img.alicdn.com/tfs/TB1gpdtCVP7gK0jSZFjXXc5aXXa-666-298.gif)
+![](https://gw.alicdn.com/tfs/TB1xeMLPAT2gK0jSZFkXXcIQFXa-962-502.gif)
 
 #### 只替换key
 ![](https://img.alicdn.com/tfs/TB1z3pxC7T2gK0jSZPcXXcKkpXa-666-298.gif)
@@ -72,7 +72,7 @@ module.exports = ({vscode, utils}) => {
 ![](https://gw.alicdn.com/tfs/TB1g9kJPAT2gK0jSZFkXXcIQFXa-899-529.gif)
 
 #### 处理动态变量
-![](https://gw.alicdn.com/tfs/TB1ghkuPAL0gK0jSZFtXXXQCXXa-899-529.gif)
+![](https://gw.alicdn.com/tfs/TB1rUMMPxv1gK0jSZFFXXb0sXXa-962-502.gif)
 
 ### 提示是否有英文, 繁体(颜色标识黄色)
 ![](https://img.alicdn.com/tfs/TB1wLpyC4D1gK0jSZFyXXciOVXa-926-236.gif)

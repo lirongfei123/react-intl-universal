@@ -68,6 +68,12 @@ module.exports = ({vscode, utils}) => {
 #### 只替换key
 ![](https://img.alicdn.com/tfs/TB1z3pxC7T2gK0jSZPcXXcKkpXa-666-298.gif)
 
+#### 处理html
+![](https://gw.alicdn.com/tfs/TB1g9kJPAT2gK0jSZFkXXcIQFXa-899-529.gif)
+
+#### 处理动态变量
+![](https://gw.alicdn.com/tfs/TB1ghkuPAL0gK0jSZFtXXXQCXXa-899-529.gif)
+
 ### 提示是否有英文, 繁体(颜色标识黄色)
 ![](https://img.alicdn.com/tfs/TB1wLpyC4D1gK0jSZFyXXciOVXa-926-236.gif)
 
@@ -211,7 +217,7 @@ default: false
 
 default: 无
 
-### customCheckNode
+### ignoreCheckNode
 说明: 自定义语法分析逻辑, 哪些汉语会被忽略, 比如`console.error('这里有错误');` 这种汉子是不需要翻译的
 
 类型: function

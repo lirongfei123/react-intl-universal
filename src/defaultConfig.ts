@@ -5,7 +5,7 @@ const fs = require('fs');
 export default {
     langKey: {
         zh_CN: '中文',
-        en_US: '英文',
+        // en_US: '英文',
     },// 一共支持哪些语言, 必选
     isAli: false,
     mdsProjectName: null,

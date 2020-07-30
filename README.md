@@ -63,10 +63,10 @@ module.exports = ({vscode, utils}) => {
 ### 功能一, 自动查找已有Key, 并自动补全
 #### 替换全部
 
-![](https://gw.alicdn.com/tfs/TB1xeMLPAT2gK0jSZFkXXcIQFXa-962-502.gif)
+![](https://img.alicdn.com/tfs/TB1gpdtCVP7gK0jSZFjXXc5aXXa-666-298.gif)
 
 #### 只替换key
-![](https://img.alicdn.com/tfs/TB1z3pxC7T2gK0jSZPcXXcKkpXa-666-298.gif)
+![](https://gw.alicdn.com/tfs/TB1jFsrcAcx_u4jSZFlXXXnUFXa-666-298.gif)
 
 #### 处理html
 ![](https://gw.alicdn.com/tfs/TB1g9kJPAT2gK0jSZFkXXcIQFXa-899-529.gif)
@@ -75,14 +75,14 @@ module.exports = ({vscode, utils}) => {
 ![](https://gw.alicdn.com/tfs/TB1rUMMPxv1gK0jSZFFXXb0sXXa-962-502.gif)
 
 ### 提示是否有英文, 繁体(颜色标识黄色)
-![](https://img.alicdn.com/tfs/TB1wLpyC4D1gK0jSZFyXXciOVXa-926-236.gif)
+![](https://gw.alicdn.com/tfs/TB1dkHudIVl614jSZKPXXaGjpXa-926-236.gif)
 
 ### 功能二, 没有翻译的自动提交服务器(内部使用美杜莎)翻译(可定制翻译逻辑), 并直接替换, 支持自动生成key
 
-![](https://img.alicdn.com/tfs/TB1IlhyCYj1gK0jSZFOXXc7GpXa-1090-648.gif)
+![](https://gw.alicdn.com/tfs/TB1yegJPrr1gK0jSZFDXXb9yVXa-1090-648.gif)
 ### 支持查看所有文件, 标识出那些文案未翻译, 并自动标红, 自动跳转
 
-![](https://img.alicdn.com/tfs/TB1pC_3C1L2gK0jSZFmXXc7iXXa-1348-820.gif)
+![](https://gw.alicdn.com/tfs/TB1HT.UPpP7gK0jSZFjXXc5aXXa-1348-820.gif)
 
 ## 配置
 ### localeDir

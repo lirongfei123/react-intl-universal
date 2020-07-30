@@ -62,7 +62,6 @@ module.exports = ({vscode, utils}) => {
 ## 功能
 ### 功能一, 自动查找已有Key, 并自动补全
 #### 替换全部
-
 ![](https://img.alicdn.com/tfs/TB1gpdtCVP7gK0jSZFjXXc5aXXa-666-298.gif)
 
 #### 只替换key

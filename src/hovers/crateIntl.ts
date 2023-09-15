@@ -78,7 +78,7 @@ class CodeHover implements HoverProvider {
             } else {
                 return this.getHoverValue([
                     [
-                        '添加到服务器',
+                        '添加国际化',
                         Commands.OPEN_WEBVIEW,
                         {
                             replaceParams: info.data.replaceParams,
@@ -131,7 +131,7 @@ class CodeHover implements HoverProvider {
                     } else {
                         return this.getHoverValue([
                             [
-                                '已经添加到服务器, 但是缺少英文, 或者繁体',
+                                '已经添加到国际化, 但是缺少英文, 或者繁体',
                                 Commands.OPEN_WEBVIEW,
                                 {
                                     range: range,
@@ -158,7 +158,7 @@ class CodeHover implements HoverProvider {
                     } else {
                         return this.getHoverValue([
                             [
-                                '不存在Key, 添加到服务器',
+                                '不存在Key, 添加到国际化',
                                 Commands.OPEN_WEBVIEW,
                                 {
                                     range: range,

@@ -5,6 +5,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import utils from "../utils";
 import CheckFile from '../services/checkFiles'
+import Task from "../services/Task";
 class AutoFillText {
     ctx: any;
     panel: any;
@@ -14,6 +15,16 @@ class AutoFillText {
     init() {
         this.ctx.subscriptions.push(commands.registerCommand(Commands.AUTO_FILL_TEXT, (params) => {
             // 获取当前文件路径, 然后根据路径获取配置文件
+            let task = new Task();
+            const config = task.getConfig();
+            task.updateLocals({
+                [config.defaultLang]: [
+                    {
+                        key: params.key,
+                        text: params.value
+                    }
+                ]
+            });
             const activeTextEditor = utils.getActiveEditor()
             activeTextEditor.edit((editBuilder: any) => {
                 editBuilder.replace(new vscode.Range(
@@ -22,7 +33,7 @@ class AutoFillText {
                     params.range.endLine,
                     params.range.endColumn
                 ), params.text);
-            })
+            });
         }));
     }
     

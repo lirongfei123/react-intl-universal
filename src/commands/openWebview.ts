@@ -26,7 +26,7 @@ class TransView {
         if (!this.panel) {
             this.panel = window.createWebviewPanel(
                 'transView',
-                '上传到服务器',
+                '更新到国际化',
                 ViewColumn.Beside,
                 {
                     enableCommandUris: true,
@@ -77,7 +77,9 @@ class TransView {
         }
         vscode.commands.executeCommand(CommandConstants.AUTO_FILL_TEXT, {
             range: params.range,
-            text: text
+            text: text,
+            key: params.key,
+            value: params.text
         });
     }
     onMessage({type, data}: any) {

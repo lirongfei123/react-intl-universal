@@ -70,7 +70,7 @@
     "@babel/types": "^7.10.4",
     "@types/lodash": "^4.14.149",
     "crc-32": "^1.2.0",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.21",
     "node-readfiles": "^0.2.0",
     "request": "^2.88.2",
     "request-promise": "^4.2.5"
